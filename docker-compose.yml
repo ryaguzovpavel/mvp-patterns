@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: realty
+      POSTGRES_PASSWORD: realty
+      POSTGRES_DB: realty
+    ports:
+      - "5433:5432"
+    volumes:
+      - realty_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U realty -d realty"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "8001:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://realty:realty@db:5432/realty
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  realty_pg_data:
