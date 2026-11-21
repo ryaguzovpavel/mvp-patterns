@@ -1,43 +1,18 @@
-# MVP: паттерны в ИС агентства недвижимости
+# Паттерны в ИС агентства недвижимости
 
-Монолит на FastAPI и PostgreSQL. Без микросервисов: каталог объектов и сделки. Каждый паттерн закрывает одну задачу предметной области.
+## Порождающие
 
-## Запуск
+- **Builder** — `app/patterns/creational/listing.py`, класс `ListingBuilder`. Объявление собирается по шагам: название, адрес, цена, площадь, этаж. Вызывается из `AgencyFacade.publish_property`.
+- **Factory Method** — там же, `factory_for(kind)`. По типу `apartment` / `house` / `commercial` выбирается своя фабрика и свои правила карточки объекта.
 
-```bash
-docker compose up --build
-```
+## Структурные
 
-API: http://localhost:8001/docs  
-Postgres с хоста: `localhost:5433`, база `realty` / `realty` / `realty`.
+- **Adapter** — `app/patterns/structural/address.py`. Старый адрес из CRM вида `Город|Улица|Дом` переводится в обычную строку. Builder вызывает его в `from_legacy_address`.
+- **Decorator** — `app/patterns/structural/deal_audit.py`, `AuditedDealService`. Оборачивает операции со сделкой и пишет строку в журнал аудита (`AuditLog`).
+- **Facade** — `app/patterns/structural/facade.py`, `AgencyFacade`. Один сценарий для агента: опубликовать объект, открыть сделку, сменить статус. Скрывает Builder, Factory, Strategy, State, Decorator и Observer.
 
-## Паттерны
+## Поведенческие
 
-| Группа | Паттерн | Задача |
-|---|---|---|
-| Порождающий | Builder | Собрать объявление по шагам |
-| Порождающий | Factory Method | Квартира, дом и коммерция создаются по своим правилам |
-| Структурный | Adapter | Адрес из старой CRM: `Город\|Улица\|Дом` |
-| Структурный | Decorator | Журнал аудита вокруг операций со сделкой |
-| Структурный | Facade | Один сценарий для агента: объект и сделка |
-| Поведенческий | Strategy | Комиссия 3% или фикс 50 000 |
-| Поведенческий | State | Статусы `new` → `in_progress` → `closed` |
-| Поведенческий | Observer | Уведомление агенту и в журнал агентства |
-
-Список также отдаёт `GET /patterns`.
-
-## Сценарий
-
-```bash
-curl -X POST http://localhost:8001/properties \
-  -H 'Content-Type: application/json' \
-  -d '{"kind":"apartment","title":"2к на Ленина","legacy_address":"Пермь|Ленина|10","price":4500000,"area":54,"floor":5}'
-
-curl -X POST http://localhost:8001/deals \
-  -H 'Content-Type: application/json' \
-  -d '{"property_id":1,"client_name":"Иванов Иван","amount":4500000,"commission_strategy":"percent"}'
-
-curl -X POST http://localhost:8001/deals/1/advance
-curl http://localhost:8001/notifications
-curl http://localhost:8001/audit
-```
+- **Strategy** — `app/patterns/behavioral/commission.py`. Комиссия сделки: `percent` (3%) или фиксированные 50 000. Выбор в `open_deal` по полю `commission_strategy`.
+- **State** — `app/patterns/behavioral/state.py`. Переход статуса сделки: `new` → `in_progress` → `closed`. Дальше закрытую сделку перевести нельзя. Вызывается при `advance`.
+- **Observer** — `app/patterns/behavioral/observers.py`. После открытия и смены статуса `DealEventSubject` уведомляет двух подписчиков: канал агента и журнал агентства (`Notification`).
