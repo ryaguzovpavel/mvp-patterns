@@ -14,7 +14,29 @@ async def lifespan(_: FastAPI):
     yield
 
 
+OPENAPI_TAGS = [
+    {
+        "name": "properties",
+        "description": (
+            "Объекты недвижимости агентства. Публикация через фасад: Builder и Factory Method, "
+            "адрес из старой CRM через Adapter."
+        ),
+    },
+    {
+        "name": "deals",
+        "description": (
+            "Сделки, комиссии (Strategy), смена статуса (State), уведомления (Observer) "
+            "и журнал аудита (Decorator)."
+        ),
+    },
+]
+
+
 def create_app() -> FastAPI:
-    app = FastAPI(title=settings.app_name, lifespan=lifespan)
+    app = FastAPI(
+        title=settings.app_name,
+        lifespan=lifespan,
+        openapi_tags=OPENAPI_TAGS,
+    )
     app.include_router(api_router)
     return app
