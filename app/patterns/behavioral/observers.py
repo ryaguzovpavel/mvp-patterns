@@ -1,5 +1,3 @@
-"""Поведенческий паттерн: Observer."""
-
 from abc import ABC, abstractmethod
 
 from sqlalchemy.orm import Session
@@ -26,7 +24,9 @@ class DealEventSubject:
 
 
 class ChannelNotificationObserver(DealObserver):
-    """Пишет уведомление в выбранный канал: агенту или в журнал агентства."""
+    """
+    Пишет уведомление в выбранный канал: агенту или в журнал агентства
+    """
 
     def __init__(self, db: Session, channel: str) -> None:
         self._db = db

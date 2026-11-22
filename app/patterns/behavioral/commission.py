@@ -1,5 +1,3 @@
-"""Поведенческий паттерн: Strategy."""
-
 from abc import ABC, abstractmethod
 
 
@@ -12,7 +10,9 @@ class CommissionStrategy(ABC):
 
 
 class PercentCommission(CommissionStrategy):
-    """3% от суммы сделки, как типовая комиссия агентства."""
+    """
+    3% от суммы сделки, как типовая комиссия агентства
+    """
 
     name = "percent"
 
@@ -21,7 +21,9 @@ class PercentCommission(CommissionStrategy):
 
 
 class FixedCommission(CommissionStrategy):
-    """Фиксированная комиссия за сопровождение."""
+    """
+    Фиксированная комиссия за сопровождение
+    """
 
     name = "fixed"
 

@@ -1,5 +1,3 @@
-"""Поведенческий паттерн: State."""
-
 from abc import ABC, abstractmethod
 
 
